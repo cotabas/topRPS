@@ -1,18 +1,38 @@
 
-const para = document.querySelector('p');
+const userScore = document.getElementById('userScore');
+const compScore = document.getElementById('compScore');
+const buts = document.querySelectorAll('svg');
 
-//are we playing the same game?
-function checkPlayable(x) {
-    if (x === "rock" || x === "paper" || x === "scissor") {
-        return x;
-    } else {
-        x = prompt("You must choose Rock, Paper, or Scissor!");
-        return checkPlayable(x);
-    }
+const left = document.getElementById('left');
+const right = document.getElementById('right');
+const rock = document.getElementById('rockTile');
+const paper = document.getElementById('paperTile');
+const scissor = document.getElementById('scissorTile');
+const mainButs = document.getElementById('buts');
+const results = document.getElementById('result');
+const overlay = document.getElementById('overlay');
+const tieOL = document.getElementById('tieOL');
+
+//left.appendChild(rock);
+//right.appendChild(paper)
+//mainButs.insertBefore(rock, mainButs.childNodes[0]);
+
+
+let user = 0;
+let comp = 0;
+
+buts.forEach((x) => {
+    x.addEventListener('click', () => {
+        userPick(x.id);
+    });
+});
+
+function userPick(user) {
+    let compPick = getCompChoice();
+    giveWinner(checkWinner(user, compPick)[0]);
+    showResults(checkWinner(user, compPick), user, compPick);
 }
 
-
-// random computer choice
 function getCompChoice() {
     const a = Math.floor(Math.random() * 3);
     if (a === 0) {
@@ -24,47 +44,64 @@ function getCompChoice() {
     }
 }
 
-//check who won
 function checkWinner(a, b) {
-    //rock greater than scissor
-    //scissor greater than paper
-    //paper greater than rock
     if (a === b) {
-        return "Tie";
+        return ["Tie", "Tie"];
     } else if ((a === "rock" && b === "scissor") || (a === "scissor" && b === "paper") || (a === "paper" && b === "rock")) {
-        return "User";
+        return ["User", "Computer"];
     } else {
-        return "Computer";
+        return ["Computer", "User"];
     }
 }
 
-function getNiceMessage(x) {
+function giveWinner(x) {
+    console.log(x)
     if (x === "Tie") {
-        return "It was a tie! Everybody loses!";
+        return;
     } else if (x === "User") {
-        return "You won! You beat the very dumb computer!";
+        user++;
+        userScore.textContent = user;
     } else {
-        return "The Computer won! You should try harder!";
+        comp++;
+        compScore.textContent = comp;
     }
 }
 
-let userPick 
-let cumText
-for (i = 1; i <= 5; i++) {
-    userPick = prompt("Rock, Paper, or Scissor?");
-    (userPick === null) ? userPick = prompt("Rock, Paper, or Scissor?") : userPick = userPick.toLowerCase();
-    userPick = checkPlayable(userPick);
-    compPick = getCompChoice();
+function showResults(result, userPick, compPick) {
+    if (result[0] === "Tie") {
+        tieOL.style.visibility = "visible";
+        setTimeout(() => {tieOL.style.visibility = "hidden";}, 2000);
+        return;
+    }
+    console.log(result);
+    console.log(userPick + compPick);
+    overlay.style.visibility = "visible";
+    left.appendChild(window[userPick + "Tile"]);
+    right.appendChild(window[compPick + "Tile"]);
+    results.childNodes[1].textContent = result[0] + " Won AND " + result[1] + " Lost";
+    setTimeout(function() {
+        overlay.style.visibility = "hidden";
+        mainButs.insertBefore(scissor, mainButs.childNodes[0]);
+        mainButs.insertBefore(paper, mainButs.childNodes[0]);
+        mainButs.insertBefore(rock, mainButs.childNodes[0]);   
+        if (user === 2 || comp === 2) {
+            (user > comp) ? tieOL.childNodes[3].textContent = "USER WON" : tieOL.childNodes[3].textContent = "COMPUTER WON";
+            tieOL.childNodes[1].textContent = "GAME OVER";
+            tieOL.style.visibility = "visible";
+            setTimeout(() => {tieOL.style.visibility = "hidden";}, 2000);
+            reset();
+            return; 
+        }
+    }, 2000);
 
-    console.log("User: " + userPick);
-    console.log("Computer: " + compPick);
-    console.log("Winner: " + checkWinner(userPick, compPick));
-    (cumText === undefined) ? cumText = getNiceMessage(checkWinner(userPick, compPick)) : cumText = cumText + "<br>" + getNiceMessage(checkWinner(userPick, compPick));
-    para.innerHTML = cumText;
-    
 }
 
-
+function reset() {
+    user = 0;
+    comp = 0;
+    userScore.textContent = user;
+    compScore.textContent = comp;
+}
 
 
 
